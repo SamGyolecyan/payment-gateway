@@ -1,6 +1,5 @@
 package mongodb.testing.paymentgateway.controller;
 
-
 import lombok.RequiredArgsConstructor;
 import mongodb.testing.paymentgateway.model.PaymentRequest;
 import mongodb.testing.paymentgateway.model.PaymentResponse;
@@ -19,6 +18,5 @@ public class PaymentController {
   public PaymentResponse pay(@RequestBody PaymentRequest paymentRequest) {
     return paymentService.pay(paymentRequest);
   }
-
 
 }

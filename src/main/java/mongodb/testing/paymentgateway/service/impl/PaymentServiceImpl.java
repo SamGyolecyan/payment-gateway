@@ -49,7 +49,7 @@ public class PaymentServiceImpl implements PaymentService {
   private ValidationResult validatePayment(PaymentRequest request, Card card) {
     List<String> errorReasons = new ArrayList<>();
     boolean isCardNumberValid = request.cardNumber().equals(card.getCardNumber());
-    boolean isCvvValid = request.CVVNumber().equals(card.getCVVNumber());
+    boolean isCvvValid = request.cvvNumber().equals(card.getCvvNumber());
     boolean isEnoughMoney = false;
     double newBalance = 0;
     if (request.paymentAmount() <= card.getBalance()) {
