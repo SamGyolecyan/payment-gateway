@@ -23,7 +23,7 @@ public class Card {
 
   String cardNumber;
 
-  String CVVNumber;
+  String cvvNumber;
 }
 
 

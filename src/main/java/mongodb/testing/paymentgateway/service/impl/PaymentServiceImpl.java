@@ -1,5 +1,6 @@
 package mongodb.testing.paymentgateway.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import mongodb.testing.paymentgateway.entity.Card;
 import mongodb.testing.paymentgateway.model.PaymentRequest;
 import mongodb.testing.paymentgateway.model.PaymentResponse;
@@ -13,10 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
   private final CardRepository cardRepository;
+
+  List<String> errorReasons = new ArrayList<>();
 
   public PaymentServiceImpl(CardRepository cardRepository) {
     this.cardRepository = cardRepository;
@@ -27,6 +31,8 @@ public class PaymentServiceImpl implements PaymentService {
     Optional<Card> cardOptional = cardRepository.findByUserId(request.userId());
     if (cardOptional.isPresent()) {
       Card card = cardOptional.get();
+      log.info("The card details: {}", card);
+
       ValidationResult validationResult = validatePayment(request, card);
       if (validationResult.isValid()){
         cardRepository.save(card);
@@ -47,11 +53,11 @@ public class PaymentServiceImpl implements PaymentService {
   }
 
   private ValidationResult validatePayment(PaymentRequest request, Card card) {
-    List<String> errorReasons = new ArrayList<>();
     boolean isCardNumberValid = request.cardNumber().equals(card.getCardNumber());
-    boolean isCvvValid = request.CVVNumber().equals(card.getCVVNumber());
+    boolean isCvvValid = request.cvvNumber().equals(card.getCvvNumber());
     boolean isEnoughMoney = false;
     double newBalance = 0;
+
     if (request.paymentAmount() <= card.getBalance()) {
       double oldBalance = card.getBalance();
       newBalance = oldBalance - request.paymentAmount();
@@ -64,21 +70,50 @@ public class PaymentServiceImpl implements PaymentService {
           .isValid(Boolean.TRUE)
           .build();
 
-    }else {
-      if (!isCardNumberValid){
-        errorReasons.add("Not valid card number");
-      }
-      if (!isEnoughMoney){
-        errorReasons.add("Not enough money in wallet");
-      }
-      if (!isCvvValid){
-        errorReasons.add("Cvv is not correct");
-      }
+    } else {
+
+      isCardNumber(isCardNumberValid);
+
+      isEnough(isEnoughMoney);
+
+      isCvv(isCvvValid);
+
       return ValidationResult.builder()
           .errorReasons(errorReasons)
           .isValid(Boolean.FALSE)
           .build();
 
     }
+
   }
+
+  private void isCvv(boolean value) {
+    if (!value) {
+       errorReasons.add("Cvv is not correct");
+    }
+  }
+
+  private void isEnough(boolean value) {
+    if (!value) {
+       errorReasons.add("Not enough money in wallet");
+    }
+  }
+
+  private void isCardNumber(boolean value) {
+    if (!value) {
+       errorReasons.add("Not valid card number");
+    }
+  }
+
+
+
+
 }
+
+
+
+
+
+
+
+
