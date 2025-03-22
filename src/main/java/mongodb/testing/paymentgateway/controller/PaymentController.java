@@ -22,5 +22,4 @@ public class PaymentController {
     return paymentService.pay(paymentRequest);
   }
 
-
 }
